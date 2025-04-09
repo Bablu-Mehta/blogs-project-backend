@@ -2,10 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
-app.use(helmet);
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
@@ -19,5 +20,6 @@ app.use(limiter);
 
 //routes
 // app.use("/api/posts");
+app.use("/api/users", userRoutes);
 
 module.exports = app;
