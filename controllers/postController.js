@@ -40,3 +40,36 @@ exports.updatePost = async (req, res) => {
     .status(200)
     .json({ post: updatedPost, message: "Post updated successfully" });
 };
+
+exports.addComment = async (req, res) => {
+  const { text } = req.body;
+
+  const comment = {
+    text,
+    user: req.user.userId,
+    likes: [],
+    dislikes: [],
+    createdAt: new Date(),
+  };
+
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: { comments: comment },
+        updatedAt: new Date(),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "message not found!" });
+    }
+
+    res
+      .status(200)
+      .json({ post: updatedPost, message: "comment added successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
