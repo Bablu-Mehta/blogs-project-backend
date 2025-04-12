@@ -24,3 +24,19 @@ exports.post = async (req, res) => {
 
   res.status(200).json({ post });
 };
+
+exports.updatePost = async (req, res) => {
+  const updatePost = req.body;
+  const updatedPost = await Post.findByIdAndUpdate(req.params.id, updatePost, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedPost) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  res
+    .status(200)
+    .json({ post: updatedPost, message: "Post updated successfully" });
+};
