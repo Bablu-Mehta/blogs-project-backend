@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const userRoutes = require("./routes/userRoutes");
+const postRoutes = require('./routes/postRoutes');
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(limiter);
 //routes
 // app.use("/api/posts");
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 module.exports = app;
