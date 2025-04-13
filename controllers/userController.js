@@ -1,6 +1,8 @@
 const Users = require("../models/Users");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Post = require("../models/Post");
+const { default: mongoose } = require("mongoose");
 
 exports.register = async (req, res) => {
   try {
@@ -48,5 +50,35 @@ exports.login = async (req, res) => {
     res.status(200).json({ token, message: "Logged in succesfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.posts = async (req, res) => {
+  try {
+    // const posts = await Post.find({ author: req.params.id }).populate("author", "email");
+    const posts = await Post.aggregate([
+      { $match: { author: new mongoose.Types.ObjectId(req.params.id) } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      { $unwind: "$author" },
+      {
+        $project: {
+          title: 1,
+          "author.email": 1,
+          commentCount: { $size: "$comments" },
+        },
+      },
+    ]);
+    res.status(200).json({ posts });
+  } catch (error) {
+    res.status(500).json({ error, message: "server error" });
   }
 };
