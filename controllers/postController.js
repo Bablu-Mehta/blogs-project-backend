@@ -1,4 +1,7 @@
 const Post = require("../models/Post");
+const multer = require("multer");
+const path = require("path");
+const File = require("../models/File");
 
 exports.addPost = async (req, res) => {
   const { title, content } = req.body;
@@ -10,7 +13,7 @@ exports.addPost = async (req, res) => {
 };
 
 exports.allPosts = async (req, res) => {
-  const posts = await Post.find({});
+  const posts = await Post.find({}).populate("uploads");
 
   res.status(200).json({ posts, message: "Data fetched successfully" });
 };
@@ -72,4 +75,27 @@ exports.addComment = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
+};
+
+exports.uploadFile = async (req, res) => {
+
+  // return res.json({data: req.file});
+  // try {
+    const fileData = new File({
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      path: req.file.path,
+      size: req.file.size,
+      mimeType: req.file.mimetype,
+      post: req.params.id,
+    });
+    
+    await fileData.save();
+    await Post.findByIdAndUpdate(req.params.id, {uploads: fileData._id})
+    res
+      .status(201)
+      .json({ message: "file uploaded succesfully", file: fileData });
+  // } catch (error) {
+  //   res.status(500).json({ message: "server error" });
+  // }
 };
